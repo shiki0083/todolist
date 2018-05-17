@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head lang="zh-cn">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <title>Vue事项清单</title>
+    <link rel="shortcut icon" href="#" type="image/x-icon">
+    <link rel="stylesheet" href="lib/normalize.css" />
+    <link rel="stylesheet" href="css/main.css" />
+</head>
+
+<body>
+    <div id="main">
+        <div class="navbar">
+            <h1>Vue事项清单</h1>
+        </div>
+        <div class="container">
+            <div class="header">
+                快写下来，回头又忘了！
+            </div>
+
+            <form @submit.prevent="merge" class="task-form">
+                <div class="task-input">
+                    <input v-model="currentTask.title" type="text" autocomplete="off" placeholder="请输入待办事项" />
+                    <span class="icon icon-add" @click="merge"></span>
+                    <span class="icon icon-more" @click="toggleInputDetail"></span>
+                </div>
+                <div v-if="currentTask.id || inputDetailShow" class="detail">
+                    <textarea v-model="currentTask.desc" placeholder="请输入具体描述"></textarea>
+                    <input type="datetime-local" v-model="currentTask.remind" />
+                    <button type="submit">submit</button>
+                </div>
+            </form>
+
+            <div class="task-list">
+                <h2>待完成</h2>
+                <task :task="task" v-if="!task.completed" v-for="(task, index) in taskList" :key="task.id"></task>
+                <div v-if="noTodo" class="empty">添加待办事项</div>
+            </div>
+
+            <div class="task-list">
+                <h2>已完成</h2>
+                <div v-if="task.completed" v-for="(task, index) in taskList" :key="task.id" class="item complete">
+                    <span class="icon toggle-complete" @click="toggleComplete(task.id)"></span>
+                    <span class="title">{{task.title}}</span>
+                    <div class="iconbar">
+                        <span class="icon icon-remove" @click="remove(task.id)"></span>
+                        <span class="icon icon-edit" @click="setCurrent(task)"></span>
+                        <span class="icon icon-more" @click="toggleDetail(task.id)"></span>
+                    </div>
+                    <div v-if="task.showDetail" class="detail">
+                        {{task.desc || '暂无详情'}} | {{task.remind || '暂无提醒时间'}}
+                    </div>
+                </div>
+                <div v-if="noCompleted" class="empty">空空如也~</div>
+            </div>
+        </div>
+    </div>
+    <audio id="remind-sound" class="remind-sound">
+        <source src="./sound/remind.mp3" />
+    </audio>
+    <template id="task-tpl">
+        <div class="item">
+            <span class="icon toggle-complete" @click="action('toggleComplete', task.id)"></span>
+            <span class="title">{{task.title}}</span>
+            <div class="iconbar">
+                <span class="icon icon-remove" @click="action('remove', task.id)"></span>
+                <span class="icon icon-edit" @click="action('setCurrent', task)"></span>
+                <span class="icon icon-more" @click="action('toggleDetail', task.id)"></span>
+            </div>
+            <div v-if="task.showDetail" class="detail">
+                {{task.desc || '暂无详情'}} | {{task.remind || '暂无提醒时间'}}
+            </div>
+        </div>
+    </template>
+    <script src="lib/vue.js"></script>
+    <script src="js/myStorage.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>
